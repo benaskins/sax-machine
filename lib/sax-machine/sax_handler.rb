@@ -30,6 +30,7 @@ module SAXMachine
         
       elsif @collection_config = sax_config.collection_config(@name)
         @collection_handler = @collection_config.handler
+        parse_collection_instance_attributes
         
       elsif @element_config = sax_config.element_config_for_attribute(@name, @attrs)
         parse_element_attribute
@@ -62,6 +63,13 @@ module SAXMachine
     
     def parsing_collection?
       !@collection_handler.nil?
+    end
+    
+    def parse_collection_instance_attributes
+      instance = @collection_handler.object
+      @attrs.each_with_index do |attr_name,index|
+        instance.send("#{attr_name}=", @attrs[index + 1]) if index % 2 == 0 && instance.methods.include?("#{attr_name}=")
+      end
     end
     
     def parse_element_attribute

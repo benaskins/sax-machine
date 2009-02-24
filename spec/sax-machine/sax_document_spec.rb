@@ -270,7 +270,33 @@ describe "SAXMachine" do
         document.entries.first.title.should == "correct title"
       end
     end    
+
+    describe "when using the class option for a class with attributes" do
+      before :each do
+        class Foo
+          include SAXMachine
+          attributes :attr1, :attr2
+          element :title
+        end
+        @klass = Class.new do
+          include SAXMachine
+          elements :entry, :as => :entries, :class => Foo
+        end
+      end
+      
+      it "should parse all attributes" do
+        document = @klass.parse("<entry attr1='abc' attr2='def'><title>a title</title></entry>")
+        document.entries.first.attr1.should == "abc"
+        document.entries.first.attr2.should == "def"
+      end
+
+      it "should return nil for unspecified attributes" do
+        document = @klass.parse("<entry attr1='abc'><title>a title</title></entry>")
+        document.entries.first.attr2.should be_nil
+      end
+    end    
   end
+
   
   describe "full example" do
     before :each do

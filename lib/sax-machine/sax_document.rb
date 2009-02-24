@@ -52,6 +52,13 @@ module SAXMachine
       attr_writer options[:as]
     end
     
+    def attributes(*attr_names)    
+      attr_names.each do |attr_name|
+        attr_reader attr_name unless instance_methods.include?(attr_name.to_s)
+        attr_writer attr_name unless instance_methods.include?("#{attr_name}=")
+      end
+    end
+    
     def sax_config
       @sax_config ||= SAXConfig.new
     end
