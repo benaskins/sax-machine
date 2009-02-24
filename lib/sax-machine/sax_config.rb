@@ -20,8 +20,8 @@ module SAXMachine
       @collection_elements.detect { |ce| ce.name.to_s == name.to_s }
     end
 
-    def element_config_for_attribute(name, attrs)
-      @top_level_elements.detect do |element_config|
+    def element_configs_for_attribute(name, attrs)
+      @top_level_elements.select do |element_config|
         element_config.name == name &&
         element_config.has_value_and_attrs_match?(attrs)
       end

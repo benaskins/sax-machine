@@ -32,12 +32,12 @@ module SAXMachine
         @collection_handler = @collection_config.handler
         parse_collection_instance_attributes
         
-      elsif @element_config = sax_config.element_config_for_attribute(@name, @attrs)
-        parse_element_attribute
+      elsif (element_configs = sax_config.element_configs_for_attribute(@name, @attrs)).any?
+        parse_element_attributes(element_configs)
+        set_element_config_for_element_value
         
       else
-        @value = ""
-        @element_config = sax_config.element_config_for_tag(@name, @attrs)
+        set_element_config_for_element_value
       end
     end
     
@@ -72,21 +72,29 @@ module SAXMachine
       end
     end
     
-    def parse_element_attribute
-      unless parsed_config?
-        mark_as_parsed
-        @object.send(@element_config.setter, @element_config.value_from_attrs(@attrs))
+    def parse_element_attributes(element_configs)
+      element_configs.each do |ec|
+        unless parsed_config?(ec)
+          @object.send(ec.setter, ec.value_from_attrs(@attrs))
+          mark_as_parsed(ec)
+        end
       end
-      
       @element_config = nil
     end
     
-    def mark_as_parsed
-      @parsed_configs[@element_config] = true unless @element_config.collection?
+    def set_element_config_for_element_value
+      @value = ""
+      @element_config = sax_config.element_config_for_tag(@name, @attrs)
     end
     
-    def parsed_config?
-      @parsed_configs[@element_config]
+    def mark_as_parsed(element_config=nil)
+      element_config ||= @element_config
+      @parsed_configs[element_config] = true unless element_config.collection?
+    end
+    
+    def parsed_config?(element_config=nil)
+      element_config ||= @element_config
+      @parsed_configs[element_config]
     end
     
     def reset_current_collection
