@@ -31,7 +31,7 @@ module SAXMachine
       end
 
       def value_from_attrs(attrs)
-        attrs[attrs.index(@value) + 1]
+        attrs[attrs.index(@value) + 1] if attrs.index(@value)
       end
       
       def attrs_match?(attrs)
